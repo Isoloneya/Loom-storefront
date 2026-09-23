@@ -1,36 +1,136 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Loom — Headless Storefront
 
-## Getting Started
+Клієнтська частина headless-проєкту Loom: вітрина електронної комерції на Next.js (App Router, TypeScript), що взаємодіє з Magento 2 виключно через GraphQL API.
 
-First, run the development server:
+## Зміст
+
+- [Роль репозиторію в проєкті Loom](#роль-репозиторію-в-проєкті-loom)
+- [Технологічний стек](#технологічний-стек)
+- [Системні вимоги](#системні-вимоги)
+- [Встановлення](#встановлення)
+- [Змінні середовища](#змінні-середовища)
+- [Запуск застосунку](#запуск-застосунку)
+- [Структура проєкту](#структура-проєкту)
+- [Взаємодія з GraphQL API](#взаємодія-з-graphql-api)
+- [Тестування продуктивності](#тестування-продуктивності)
+
+## Роль репозиторію в проєкті Loom
+
+Проєкт Loom складається з двох незалежних репозиторіїв: цей репозиторій (`loom-storefront`) — клієнтська частина, що не має власної бази даних і не містить бізнес-логіки; усі дані (каталог, кошик, замовлення, користувачі) надаються backend-репозиторієм `loom-magento` через GraphQL. Такий поділ відображає архітектурний принцип headless-рішення: незалежні життєві цикли розробки та розгортання серверної й клієнтської частин.
+
+Детальний опис архітектурних рішень та acceptance criteria — у документі `Loom_AC.md` (репозиторій `loom-magento`).
+
+## Технологічний стек
+
+| Шар | Технологія |
+|---|---|
+| Фреймворк | Next.js 16 (App Router) |
+| Мова | TypeScript |
+| UI-бібліотека | React |
+| Стилізація | Tailwind CSS |
+| GraphQL-клієнт | Apollo Client |
+| Лінтинг | ESLint |
+
+## Системні вимоги
+
+- Node.js 24 LTS або новіший, встановлений безпосередньо в середовищі виконання (у Windows-розробників — саме всередині WSL2, а не через Windows-інсталяцію Node, задля продуктивності файлової системи)
+- запущений і доступний backend `loom-magento` (типово на `http://localhost:8080`) — детальніше в README репозиторію `loom-magento`
+
+## Встановлення
+
+**1. Клонування репозиторію**
+
+```bash
+git clone https://github.com/Isoloneya/loom-storefront.git
+cd loom-storefront
+```
+
+**2. Встановлення залежностей**
+
+```bash
+npm install
+```
+
+**3. Налаштування змінних середовища**
+
+```bash
+cp .env.example .env.local
+```
+
+За потреби відредагуйте `NEXT_PUBLIC_GRAPHQL_ENDPOINT` у створеному файлі.
+
+## Змінні середовища
+
+Значення задаються у файлі `.env.local` (не потрапляє до репозиторію):
+
+| Змінна | Опис | Приклад |
+|---|---|---|
+| `NEXT_PUBLIC_GRAPHQL_ENDPOINT` | адреса GraphQL endpoint backend-частини Loom | `http://localhost:8080/graphql` |
+
+## Запуск застосунку
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Клієнтська частина буде доступна за адресою `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Перед запуском переконайтесь, що backend `loom-magento` піднятий і GraphQL endpoint відповідає (перевірка описана в README репозиторію `loom-magento`).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Структура проєкту
 
-## Learn More
+```
+src/
+├── app/
+│   ├── (storefront)/
+│   │   ├── page.tsx                     # головна сторінка
+│   │   ├── category/[slug]/page.tsx     # список товарів категорії
+│   │   ├── product/[slug]/page.tsx      # картка товару
+│   │   ├── cart/page.tsx                # кошик
+│   │   ├── checkout/page.tsx            # оформлення замовлення
+│   │   └── search/page.tsx              # результати пошуку
+│   ├── (auth)/
+│   │   ├── login/page.tsx
+│   │   └── register/page.tsx
+│   └── account/
+│       ├── page.tsx                     # особистий кабінет
+│       └── orders/page.tsx              # історія замовлень
+├── components/
+│   ├── catalog/        # картка товару, сітка каталогу, фільтри
+│   ├── cart/            # вміст кошика, міні-кошик
+│   ├── checkout/        # форми доставки й оплати
+│   └── ui/               # перевикористовувані елементи інтерфейсу
+├── lib/
+│   ├── apollo/          # ініціалізація та конфігурація Apollo Client
+│   └── graphql/          # queries.ts, mutations.ts, fragments.ts
+├── hooks/                 # useCart, useCustomer, useWishlist
+└── types/                  # типи даних, узгоджені зі схемою Magento GraphQL
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Взаємодія з GraphQL API
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Клієнтська частина звертається до backend виключно через Apollo Client, налаштований на адресу з `NEXT_PUBLIC_GRAPHQL_ENDPOINT`. Автентифікація захищених запитів (профіль, історія замовлень) здійснюється через customer token, що додається до заголовка `Authorization`. Повний перелік використовуваних запитів і мутацій, а також формат обробки помилок GraphQL — у розділі AC-06 документа `Loom_AC.md`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Приклад базового запиту, що використовує застосунок:
 
-## Deploy on Vercel
+```graphql
+query GetProductBySlug($slug: String!) {
+  products(filter: { url_key: { eq: $slug } }) {
+    items {
+      id
+      name
+      sku
+      price_range {
+        minimum_price {
+          regular_price { value currency }
+        }
+      }
+      media_gallery { url label }
+    }
+  }
+}
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Тестування продуктивності
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Одна із задач проєкту — порівняльне вимірювання показників продуктивності headless-вітрини (цей репозиторій) відносно стандартної теми Luma на ідентичному наборі даних каталогу. Методика вимірювання (інструменти, показники, що фіксуються) описана в розділі AC-14 документа `Loom_AC.md`.

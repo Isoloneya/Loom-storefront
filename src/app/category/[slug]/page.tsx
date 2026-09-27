@@ -31,13 +31,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           {products.map((product) => (
-            <ProductCard
-              key={product?.id}
-              name={product?.name}
-              imageUrl={product?.small_image?.url}
-              price={product?.price_range?.minimum_price?.regular_price?.value}
-              currency={product?.price_range?.minimum_price?.regular_price?.currency}
-            />
+        <ProductCard
+            key={product?.id}
+            name={product?.name}
+            urlKey={product?.url_key}
+            imageUrl={product?.small_image?.url}
+            price={product?.price_range?.minimum_price?.regular_price?.value}
+            currency={product?.price_range?.minimum_price?.regular_price?.currency}
+        />
           ))}
         </div>
       </section>

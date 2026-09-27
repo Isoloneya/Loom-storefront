@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useCategories } from "@/hooks/useCategories";
+import { useCart } from "@/hooks/useCart";
 
 export function Header() {
   const { allCategories } = useCategories();
+  const { totalQuantity } = useCart();
 
   const navCategories = allCategories.filter((category) =>
     ["What's New", "Women", "Men", "Gear", "Training", "Sale"].includes(
@@ -40,12 +42,12 @@ export function Header() {
           placeholder="Search products"
         />
         <button className="text-cream/85 text-base">♡</button>
-        <button className="relative text-cream/85 text-base">
+        <Link href="/cart" className="relative text-cream/85 text-base">
           ⊙
           <span className="absolute -top-2 -right-2.5 bg-accent text-cream text-[10px] font-semibold w-4 h-4 rounded-full flex items-center justify-center">
-            0
+            {totalQuantity}
           </span>
-        </button>
+        </Link>
         <button className="md:hidden text-cream text-xl">☰</button>
       </div>
     </header>

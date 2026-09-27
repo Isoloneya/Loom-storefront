@@ -1,8 +1,8 @@
 "use client";
 
-import { use } from "react";
-import Image from "next/image";
+import { use, useState } from "react";
 import { useProduct } from "@/hooks/useProduct";
+import { useCart } from "@/hooks/useCart";
 import { Header } from "@/components/Header";
 
 type ProductPageProps = {
@@ -12,6 +12,8 @@ type ProductPageProps = {
 export default function ProductPage({ params }: ProductPageProps) {
   const { slug } = use(params);
   const { product, loading, error } = useProduct(slug);
+  const { addToCart } = useCart();
+  const [adding, setAdding] = useState(false);
 
   if (loading) return <p className="p-8">Loading...</p>;
   if (error) return <p className="p-8">Error: {error.message}</p>;
@@ -21,19 +23,27 @@ export default function ProductPage({ params }: ProductPageProps) {
   const currency = product.price_range?.minimum_price?.regular_price?.currency;
   const image = product.media_gallery?.[0]?.url;
 
+  const handleAddToCart = async () => {
+    if (!product.sku) return;
+    setAdding(true);
+    try {
+      await addToCart(product.sku, 1);
+    } finally {
+      setAdding(false);
+    }
+  };
+
   return (
     <>
       <Header />
 
       <section className="px-6 md:px-12 py-14 grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div className="relative bg-gradient-to-br from-[#dedad1] to-[#eeeceb] aspect-[3/4] rounded-md flex items-center justify-center text-[#a19d92] text-sm overflow-hidden">
+        <div className="bg-gradient-to-br from-[#dedad1] to-[#eeeceb] aspect-[3/4] rounded-md flex items-center justify-center text-[#a19d92] text-sm overflow-hidden">
           {image ? (
             <img
               src={image}
               alt={product.name ?? ""}
-              fill
-              sizes="(min-width: 768px) 50vw, 100vw"
-              className="object-cover"
+              className="w-full h-full object-cover"
             />
           ) : (
             "Product image"
@@ -62,8 +72,12 @@ export default function ProductPage({ params }: ProductPageProps) {
             />
           )}
 
-          <button className="bg-accent text-cream rounded-md px-8 py-4 text-sm font-semibold w-fit">
-            Add to Cart
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            className="bg-accent text-cream rounded-md px-8 py-4 text-sm font-semibold w-fit disabled:opacity-50"
+          >
+            {adding ? "Adding..." : "Add to Cart"}
           </button>
         </div>
       </section>

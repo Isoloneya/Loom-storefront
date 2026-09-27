@@ -1,21 +1,36 @@
+"use client";
+
+import Link from "next/link";
+import { useCategories } from "@/hooks/useCategories";
+
 export function Header() {
+  const { allCategories } = useCategories();
+
+  const navCategories = allCategories.filter((category) =>
+    ["What's New", "Women", "Men", "Gear", "Training", "Sale"].includes(
+      category?.name ?? ""
+    )
+  );
+
   return (
     <header className="flex items-center justify-between px-6 md:px-12 py-5 border-b border-line">
-      <div className="flex items-center gap-2 font-display font-extrabold text-xl tracking-wide">
+      <Link
+        href="/"
+        className="flex items-center gap-2 font-display font-extrabold text-xl tracking-wide"
+      >
         <span className="w-2 h-2 bg-accent rounded-sm rotate-45 inline-block" />
         LOOM
-      </div>
+      </Link>
 
       <nav className="hidden md:flex gap-8">
-        {["What's New", "Women", "Men", "Gear", "Training", "Sale"].map((item) => (
-          <a
-            key={item}
-            href="#"
-            
+        {navCategories.map((category) => (
+          <Link
+            key={category?.id}
+            href={`/category/${category?.url_path}`}
             className="text-sm font-medium text-cream/70 hover:text-cold hover:opacity-100 transition"
           >
-            {item}
-          </a>
+            {category?.name}
+          </Link>
         ))}
       </nav>
 

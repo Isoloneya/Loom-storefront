@@ -15,9 +15,13 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  */
 type Documents = {
     "\n  query GetCategories {\n    categoryList(filters: { parent_id: { eq: \"2\" } }) {\n      id\n      name\n      url_path\n      product_count\n    }\n  }\n": typeof types.GetCategoriesDocument,
+    "\n  query GetCategoryProducts($urlKey: String!) {\n    categoryList(filters: { url_path: { eq: $urlKey } }) {\n      id\n      name\n      product_count\n      products {\n        items {\n          id\n          sku\n          name\n          url_key\n          small_image {\n            url\n          }\n          price_range {\n            minimum_price {\n              regular_price {\n                value\n                currency\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n": typeof types.GetCategoryProductsDocument,
+    "\n  query GetNewArrivals {\n    products(search: \"\", pageSize: 4, sort: { position: DESC }) {\n      items {\n        id\n        sku\n        name\n        url_key\n        small_image {\n          url\n        }\n        price_range {\n          minimum_price {\n            regular_price {\n              value\n              currency\n            }\n          }\n        }\n      }\n    }\n  }\n": typeof types.GetNewArrivalsDocument,
 };
 const documents: Documents = {
     "\n  query GetCategories {\n    categoryList(filters: { parent_id: { eq: \"2\" } }) {\n      id\n      name\n      url_path\n      product_count\n    }\n  }\n": types.GetCategoriesDocument,
+    "\n  query GetCategoryProducts($urlKey: String!) {\n    categoryList(filters: { url_path: { eq: $urlKey } }) {\n      id\n      name\n      product_count\n      products {\n        items {\n          id\n          sku\n          name\n          url_key\n          small_image {\n            url\n          }\n          price_range {\n            minimum_price {\n              regular_price {\n                value\n                currency\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n": types.GetCategoryProductsDocument,
+    "\n  query GetNewArrivals {\n    products(search: \"\", pageSize: 4, sort: { position: DESC }) {\n      items {\n        id\n        sku\n        name\n        url_key\n        small_image {\n          url\n        }\n        price_range {\n          minimum_price {\n            regular_price {\n              value\n              currency\n            }\n          }\n        }\n      }\n    }\n  }\n": types.GetNewArrivalsDocument,
 };
 
 /**
@@ -38,6 +42,14 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  query GetCategories {\n    categoryList(filters: { parent_id: { eq: \"2\" } }) {\n      id\n      name\n      url_path\n      product_count\n    }\n  }\n"): (typeof documents)["\n  query GetCategories {\n    categoryList(filters: { parent_id: { eq: \"2\" } }) {\n      id\n      name\n      url_path\n      product_count\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetCategoryProducts($urlKey: String!) {\n    categoryList(filters: { url_path: { eq: $urlKey } }) {\n      id\n      name\n      product_count\n      products {\n        items {\n          id\n          sku\n          name\n          url_key\n          small_image {\n            url\n          }\n          price_range {\n            minimum_price {\n              regular_price {\n                value\n                currency\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetCategoryProducts($urlKey: String!) {\n    categoryList(filters: { url_path: { eq: $urlKey } }) {\n      id\n      name\n      product_count\n      products {\n        items {\n          id\n          sku\n          name\n          url_key\n          small_image {\n            url\n          }\n          price_range {\n            minimum_price {\n              regular_price {\n                value\n                currency\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetNewArrivals {\n    products(search: \"\", pageSize: 4, sort: { position: DESC }) {\n      items {\n        id\n        sku\n        name\n        url_key\n        small_image {\n          url\n        }\n        price_range {\n          minimum_price {\n            regular_price {\n              value\n              currency\n            }\n          }\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetNewArrivals {\n    products(search: \"\", pageSize: 4, sort: { position: DESC }) {\n      items {\n        id\n        sku\n        name\n        url_key\n        small_image {\n          url\n        }\n        price_range {\n          minimum_price {\n            regular_price {\n              value\n              currency\n            }\n          }\n        }\n      }\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

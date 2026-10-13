@@ -1,10 +1,34 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useMutation, useQuery } from "@apollo/client/react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
+import { useApolloClient, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "@/gql";
 
 const CART_ID_STORAGE_KEY = "loom_cart_id";
+
+let currentCartId: string | null = null;
+const listeners = new Set<() => void>();
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSnapshot() {
+  return currentCartId;
+}
+
+function getServerSnapshot() {
+  return null;
+}
+
+function storeCartId(id: string) {
+  currentCartId = id;
+  localStorage.setItem(CART_ID_STORAGE_KEY, id);
+  listeners.forEach((listener) => listener());
+}
 
 const CREATE_EMPTY_CART = graphql(`
   mutation CreateEmptyCart {
@@ -29,17 +53,45 @@ const ADD_PRODUCTS_TO_CART = graphql(`
   }
 `);
 
+const UPDATE_CART_ITEMS = graphql(`
+  mutation UpdateCartItems($cartId: String!, $uid: ID!, $quantity: Float!) {
+    updateCartItems(
+      input: {
+        cart_id: $cartId
+        cart_items: [{ cart_item_uid: $uid, quantity: $quantity }]
+      }
+    ) {
+      cart {
+        id
+        total_quantity
+      }
+    }
+  }
+`);
+
+const REMOVE_ITEM_FROM_CART = graphql(`
+  mutation RemoveItemFromCart($cartId: String!, $uid: ID!) {
+    removeItemFromCart(input: { cart_id: $cartId, cart_item_uid: $uid }) {
+      cart {
+        id
+        total_quantity
+      }
+    }
+  }
+`);
+
 const GET_CART = graphql(`
   query GetCart($cartId: String!) {
     cart(cart_id: $cartId) {
       id
       total_quantity
       items {
-        id
+        uid
         quantity
         product {
           name
           sku
+          url_key
           small_image {
             url
           }
@@ -62,25 +114,38 @@ const GET_CART = graphql(`
 `);
 
 export function useCart() {
-  const [cartId, setCartId] = useState<string | null>(null);
+  const cartId = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const client = useApolloClient();
 
   useEffect(() => {
+    if (currentCartId) return;
     const stored = localStorage.getItem(CART_ID_STORAGE_KEY);
-    if (stored) {
-      setCartId(stored);
-    }
+    if (stored) storeCartId(stored);
   }, []);
 
   const [createEmptyCart] = useMutation(CREATE_EMPTY_CART);
   const [addProductsToCart] = useMutation(ADD_PRODUCTS_TO_CART);
+  const [updateCartItems] = useMutation(UPDATE_CART_ITEMS);
+  const [removeItemFromCart] = useMutation(REMOVE_ITEM_FROM_CART);
 
-  const { data, loading, refetch } = useQuery(GET_CART, {
+  const { data, loading } = useQuery(GET_CART, {
     variables: { cartId: cartId ?? "" },
     skip: !cartId,
   });
 
+  const reloadCart = useCallback(
+    async (id: string) => {
+      await client.query({
+        query: GET_CART,
+        variables: { cartId: id },
+        fetchPolicy: "network-only",
+      });
+    },
+    [client]
+  );
+
   const ensureCartId = useCallback(async (): Promise<string> => {
-    if (cartId) return cartId;
+    if (currentCartId) return currentCartId;
 
     const result = await createEmptyCart();
     const newCartId = result.data?.createEmptyCart;
@@ -89,22 +154,37 @@ export function useCart() {
       throw new Error("Failed to create cart");
     }
 
-    localStorage.setItem(CART_ID_STORAGE_KEY, newCartId);
-    setCartId(newCartId);
+    storeCartId(newCartId);
     return newCartId;
-  }, [cartId, createEmptyCart]);
+  }, [createEmptyCart]);
 
   const addToCart = useCallback(
     async (sku: string, quantity: number = 1) => {
       const id = await ensureCartId();
-
-      await addProductsToCart({
-        variables: { cartId: id, sku, quantity },
-      });
-
-      await refetch();
+      await addProductsToCart({ variables: { cartId: id, sku, quantity } });
+      await reloadCart(id);
     },
-    [ensureCartId, addProductsToCart, refetch]
+    [ensureCartId, addProductsToCart, reloadCart]
+  );
+
+  const updateQuantity = useCallback(
+    async (uid: string, quantity: number) => {
+      if (!currentCartId) return;
+      await updateCartItems({
+        variables: { cartId: currentCartId, uid, quantity },
+      });
+      await reloadCart(currentCartId);
+    },
+    [updateCartItems, reloadCart]
+  );
+
+  const removeItem = useCallback(
+    async (uid: string) => {
+      if (!currentCartId) return;
+      await removeItemFromCart({ variables: { cartId: currentCartId, uid } });
+      await reloadCart(currentCartId);
+    },
+    [removeItemFromCart, reloadCart]
   );
 
   return {
@@ -113,5 +193,7 @@ export function useCart() {
     totalQuantity: data?.cart?.total_quantity ?? 0,
     loading,
     addToCart,
+    updateQuantity,
+    removeItem,
   };
 }

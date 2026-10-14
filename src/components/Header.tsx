@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useCategories } from "@/hooks/useCategories";
 import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
 
 export function Header() {
   const { allCategories } = useCategories();
   const { totalQuantity } = useCart();
+  const { customer, isAuthenticated, logout } = useAuth();
 
   const navCategories = allCategories.filter((category) =>
     ["What's New", "Women", "Men", "Gear", "Training", "Sale"].includes(
@@ -41,6 +43,26 @@ export function Header() {
           className="hidden md:block bg-panel border border-line rounded-md px-3.5 py-2 text-sm text-muted w-52"
           placeholder="Search products"
         />
+
+        {isAuthenticated ? (
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-cream/70">{customer?.firstname}</span>
+            <button
+              onClick={() => void logout()}
+              className="text-muted hover:text-accent transition"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-sm text-cream/70 hover:text-cold transition"
+          >
+            Sign in
+          </Link>
+        )}
+
         <button className="text-cream/85 text-base">♡</button>
         <Link href="/cart" className="relative text-cream/85 text-base">
           ⊙

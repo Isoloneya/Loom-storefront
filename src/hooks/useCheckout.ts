@@ -204,9 +204,11 @@ export function useCheckout() {
   );
 
   const completeOrder = useCallback(
-    async (cartId: string, email: string, paymentCode: string) => {
+    async (cartId: string, email: string | null, paymentCode: string) => {
       await setBillingAddress({ variables: { cartId } });
-      await setGuestEmail({ variables: { cartId, email } });
+      if (email) {
+        await setGuestEmail({ variables: { cartId, email } });
+      }
       await setPaymentMethod({ variables: { cartId, code: paymentCode } });
       const result = await placeOrder({ variables: { cartId } });
 

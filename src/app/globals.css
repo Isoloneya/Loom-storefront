@@ -23,3 +23,10 @@ body {
 h1, h2, h3, h4 {
   font-family: var(--font-display), sans-serif;
 }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #121215 inset;
+  -webkit-text-fill-color: #eeeceb;
+  caret-color: #eeeceb;
+}

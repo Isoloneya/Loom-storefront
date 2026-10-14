@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { useCart } from "@/hooks/useCart";
 import { useCheckout } from "@/hooks/useCheckout";
+import { useAuth } from "@/hooks/useAuth";
+import { Field } from "@/components/ui/Field";
+import {
+  inputClass,
+  primaryButton,
+  secondaryButton,
+} from "@/components/ui/styles";
 
 type Checkout = ReturnType<typeof useCheckout>;
 type ShippingMethods = Awaited<ReturnType<Checkout["submitShippingAddress"]>>;
@@ -14,13 +21,6 @@ type PaymentMethods = NonNullable<
 >;
 type Stage = "address" | "shipping" | "payment";
 type Total = { value?: number | null; currency?: string | null } | null;
-
-const inputClass =
-  "w-full bg-panel border border-line rounded-md px-3.5 py-3 text-sm text-cream placeholder:text-muted focus:outline-none focus:border-cold";
-const primaryButton =
-  "bg-accent text-cream rounded-md px-8 py-3.5 text-sm font-semibold disabled:opacity-50";
-const secondaryButton =
-  "border border-line rounded-md px-6 py-3.5 text-sm text-cream/80 hover:border-[#333338] transition";
 
 const hiddenRegionCodes = ["UA-43"];
 
@@ -41,23 +41,9 @@ const emptyForm = {
   telephone: "",
 };
 
-function Field({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex flex-col gap-1.5 text-xs text-muted">
-      {label}
-      {children}
-    </label>
-  );
-}
-
 export default function CheckoutPage() {
   const { cart, items, loading, resetCart } = useCart();
+  const { customer, isAuthenticated } = useAuth();
   const { countries, submitShippingAddress, submitShippingMethod, completeOrder } =
     useCheckout();
 
@@ -74,6 +60,15 @@ export default function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
 
   const cartId = cart?.id;
+
+  useEffect(() => {
+    if (!customer) return;
+    setForm((previous) => ({
+      ...previous,
+      firstname: previous.firstname || customer.firstname || "",
+      lastname: previous.lastname || customer.lastname || "",
+    }));
+  }, [customer]);
   const selectedCountry = countries.find(
     (country) => country?.id === form.countryCode
   );
@@ -136,7 +131,11 @@ export default function CheckoutPage() {
     event.preventDefault();
     if (!cartId) return;
     run(async () => {
-      const number = await completeOrder(cartId, email, selectedPayment);
+      const number = await completeOrder(
+        cartId,
+        isAuthenticated ? null : email,
+        selectedPayment
+      );
       setOrderNumber(number);
       resetCart();
     });
@@ -214,17 +213,19 @@ export default function CheckoutPage() {
 
             {stage === "address" && (
               <form onSubmit={handleAddress} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="md:col-span-2">
-                  <Field label="Email">
-                    <input
-                      required
-                      type="email"
-                      value={email}
-                      onChange={(event) => setEmail(event.target.value)}
-                      className={inputClass}
-                    />
-                  </Field>
-                </div>
+                {!isAuthenticated && (
+                  <div className="md:col-span-2">
+                    <Field label="Email">
+                      <input
+                        required
+                        type="email"
+                        value={email}
+                        onChange={(event) => setEmail(event.target.value)}
+                        className={inputClass}
+                      />
+                    </Field>
+                  </div>
+                )}
                 <Field label="First name">
                   <input
                     required

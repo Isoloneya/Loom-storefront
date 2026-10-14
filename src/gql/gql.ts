@@ -14,6 +14,12 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
  */
 type Documents = {
+    "\n  query GetCustomer {\n    customer {\n      firstname\n      lastname\n      email\n    }\n  }\n": typeof types.GetCustomerDocument,
+    "\n  query GetCustomerCart {\n    customerCart {\n      id\n    }\n  }\n": typeof types.GetCustomerCartDocument,
+    "\n  mutation GenerateCustomerToken($email: String!, $password: String!) {\n    generateCustomerToken(email: $email, password: $password) {\n      token\n    }\n  }\n": typeof types.GenerateCustomerTokenDocument,
+    "\n  mutation CreateCustomer(\n    $firstname: String!\n    $lastname: String!\n    $email: String!\n    $password: String!\n  ) {\n    createCustomerV2(\n      input: {\n        firstname: $firstname\n        lastname: $lastname\n        email: $email\n        password: $password\n      }\n    ) {\n      customer {\n        email\n      }\n    }\n  }\n": typeof types.CreateCustomerDocument,
+    "\n  mutation MergeCarts($source: String!, $destination: String!) {\n    mergeCarts(source_cart_id: $source, destination_cart_id: $destination) {\n      id\n    }\n  }\n": typeof types.MergeCartsDocument,
+    "\n  mutation RevokeCustomerToken {\n    revokeCustomerToken {\n      result\n    }\n  }\n": typeof types.RevokeCustomerTokenDocument,
     "\n  mutation CreateEmptyCart {\n    createEmptyCart\n  }\n": typeof types.CreateEmptyCartDocument,
     "\n  mutation AddProductsToCart($cartId: String!, $sku: String!, $quantity: Float!) {\n    addProductsToCart(\n      cartId: $cartId\n      cartItems: [{ sku: $sku, quantity: $quantity }]\n    ) {\n      cart {\n        id\n        total_quantity\n      }\n      user_errors {\n        message\n      }\n    }\n  }\n": typeof types.AddProductsToCartDocument,
     "\n  mutation UpdateCartItems($cartId: String!, $uid: ID!, $quantity: Float!) {\n    updateCartItems(\n      input: {\n        cart_id: $cartId\n        cart_items: [{ cart_item_uid: $uid, quantity: $quantity }]\n      }\n    ) {\n      cart {\n        id\n        total_quantity\n      }\n    }\n  }\n": typeof types.UpdateCartItemsDocument,
@@ -32,6 +38,12 @@ type Documents = {
     "\n  query GetProduct($urlKey: String!) {\n    products(filter: { url_key: { eq: $urlKey } }) {\n      items {\n        id\n        sku\n        name\n        short_description {\n          html\n        }\n        media_gallery {\n          url\n          label\n        }\n        price_range {\n          minimum_price {\n            regular_price {\n              value\n              currency\n            }\n          }\n        }\n        categories {\n          id\n          name\n          url_path\n        }\n      }\n    }\n  }\n": typeof types.GetProductDocument,
 };
 const documents: Documents = {
+    "\n  query GetCustomer {\n    customer {\n      firstname\n      lastname\n      email\n    }\n  }\n": types.GetCustomerDocument,
+    "\n  query GetCustomerCart {\n    customerCart {\n      id\n    }\n  }\n": types.GetCustomerCartDocument,
+    "\n  mutation GenerateCustomerToken($email: String!, $password: String!) {\n    generateCustomerToken(email: $email, password: $password) {\n      token\n    }\n  }\n": types.GenerateCustomerTokenDocument,
+    "\n  mutation CreateCustomer(\n    $firstname: String!\n    $lastname: String!\n    $email: String!\n    $password: String!\n  ) {\n    createCustomerV2(\n      input: {\n        firstname: $firstname\n        lastname: $lastname\n        email: $email\n        password: $password\n      }\n    ) {\n      customer {\n        email\n      }\n    }\n  }\n": types.CreateCustomerDocument,
+    "\n  mutation MergeCarts($source: String!, $destination: String!) {\n    mergeCarts(source_cart_id: $source, destination_cart_id: $destination) {\n      id\n    }\n  }\n": types.MergeCartsDocument,
+    "\n  mutation RevokeCustomerToken {\n    revokeCustomerToken {\n      result\n    }\n  }\n": types.RevokeCustomerTokenDocument,
     "\n  mutation CreateEmptyCart {\n    createEmptyCart\n  }\n": types.CreateEmptyCartDocument,
     "\n  mutation AddProductsToCart($cartId: String!, $sku: String!, $quantity: Float!) {\n    addProductsToCart(\n      cartId: $cartId\n      cartItems: [{ sku: $sku, quantity: $quantity }]\n    ) {\n      cart {\n        id\n        total_quantity\n      }\n      user_errors {\n        message\n      }\n    }\n  }\n": types.AddProductsToCartDocument,
     "\n  mutation UpdateCartItems($cartId: String!, $uid: ID!, $quantity: Float!) {\n    updateCartItems(\n      input: {\n        cart_id: $cartId\n        cart_items: [{ cart_item_uid: $uid, quantity: $quantity }]\n      }\n    ) {\n      cart {\n        id\n        total_quantity\n      }\n    }\n  }\n": types.UpdateCartItemsDocument,
@@ -64,6 +76,30 @@ const documents: Documents = {
  */
 export function graphql(source: string): unknown;
 
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetCustomer {\n    customer {\n      firstname\n      lastname\n      email\n    }\n  }\n"): (typeof documents)["\n  query GetCustomer {\n    customer {\n      firstname\n      lastname\n      email\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetCustomerCart {\n    customerCart {\n      id\n    }\n  }\n"): (typeof documents)["\n  query GetCustomerCart {\n    customerCart {\n      id\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation GenerateCustomerToken($email: String!, $password: String!) {\n    generateCustomerToken(email: $email, password: $password) {\n      token\n    }\n  }\n"): (typeof documents)["\n  mutation GenerateCustomerToken($email: String!, $password: String!) {\n    generateCustomerToken(email: $email, password: $password) {\n      token\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation CreateCustomer(\n    $firstname: String!\n    $lastname: String!\n    $email: String!\n    $password: String!\n  ) {\n    createCustomerV2(\n      input: {\n        firstname: $firstname\n        lastname: $lastname\n        email: $email\n        password: $password\n      }\n    ) {\n      customer {\n        email\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation CreateCustomer(\n    $firstname: String!\n    $lastname: String!\n    $email: String!\n    $password: String!\n  ) {\n    createCustomerV2(\n      input: {\n        firstname: $firstname\n        lastname: $lastname\n        email: $email\n        password: $password\n      }\n    ) {\n      customer {\n        email\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation MergeCarts($source: String!, $destination: String!) {\n    mergeCarts(source_cart_id: $source, destination_cart_id: $destination) {\n      id\n    }\n  }\n"): (typeof documents)["\n  mutation MergeCarts($source: String!, $destination: String!) {\n    mergeCarts(source_cart_id: $source, destination_cart_id: $destination) {\n      id\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation RevokeCustomerToken {\n    revokeCustomerToken {\n      result\n    }\n  }\n"): (typeof documents)["\n  mutation RevokeCustomerToken {\n    revokeCustomerToken {\n      result\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

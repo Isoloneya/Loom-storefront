@@ -4,7 +4,7 @@ import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { useApolloClient, useMutation, useQuery } from "@apollo/client/react";
 import { graphql } from "@/gql";
 
-const CART_ID_STORAGE_KEY = "loom_cart_id";
+export const CART_ID_STORAGE_KEY = "loom_cart_id";
 
 let currentCartId: string | null = null;
 const listeners = new Set<() => void>();
@@ -24,13 +24,13 @@ function getServerSnapshot() {
   return null;
 }
 
-function storeCartId(id: string) {
+export function storeCartId(id: string) {
   currentCartId = id;
   localStorage.setItem(CART_ID_STORAGE_KEY, id);
   listeners.forEach((listener) => listener());
 }
 
-function clearCartId() {
+export function clearCartId() {
   currentCartId = null;
   localStorage.removeItem(CART_ID_STORAGE_KEY);
   listeners.forEach((listener) => listener());

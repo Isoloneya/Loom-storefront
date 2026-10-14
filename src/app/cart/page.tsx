@@ -122,9 +122,7 @@ export default function CartPage() {
                   {cart?.prices?.grand_total?.value?.toFixed(2)}
                 </span>
               </div>
-              <button className="bg-accent text-cream rounded-md px-6 py-3 text-sm font-semibold w-full">
-                Checkout
-              </button>
+              <Link href="/checkout" className="block text-center bg-accent text-cream rounded-md px-6 py-3 text-sm font-semibold w-full">Checkout</Link>
             </div>
           </div>
         )}

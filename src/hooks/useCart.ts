@@ -30,6 +30,12 @@ function storeCartId(id: string) {
   listeners.forEach((listener) => listener());
 }
 
+function clearCartId() {
+  currentCartId = null;
+  localStorage.removeItem(CART_ID_STORAGE_KEY);
+  listeners.forEach((listener) => listener());
+}
+
 const CREATE_EMPTY_CART = graphql(`
   mutation CreateEmptyCart {
     createEmptyCart
@@ -195,5 +201,6 @@ export function useCart() {
     addToCart,
     updateQuantity,
     removeItem,
+    resetCart: clearCartId,
   };
 }

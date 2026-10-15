@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useCategoryProducts } from "@/hooks/useCategoryProducts";
 import { ProductCard } from "@/components/catalog/ProductCard";
 import { Header } from "@/components/Header";
@@ -11,7 +11,10 @@ type CategoryPageProps = {
 
 export default function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = use(params);
-  const { category, products, loading, error } = useCategoryProducts(slug);
+  const [pagination, setPagination] = useState({ slug, page: 1 });
+  const page = pagination.slug === slug ? pagination.page : 1;
+  const setPage = (page: number) => setPagination({ slug, page });
+  const { category, products, totalPages, totalCount, loading, error } = useCategoryProducts(slug, page);
 
   if (loading) return <p className="p-8">Loading...</p>;
   if (error) return <p className="p-8">Error: {error.message}</p>;
@@ -24,7 +27,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       <section className="px-6 md:px-12 py-14">
         <div className="mb-10">
           <span className="block text-accent text-xs font-semibold mb-2">
-            {category.product_count} PRODUCTS
+            {totalCount} PRODUCTS
           </span>
           <h1 className="text-3xl md:text-4xl">{category.name}</h1>
         </div>
@@ -36,11 +39,19 @@ export default function CategoryPage({ params }: CategoryPageProps) {
             name={product?.name}
             urlKey={product?.url_key}
             imageUrl={product?.small_image?.url}
-            price={product?.price_range?.minimum_price?.regular_price?.value}
+            price={product?.price_range?.minimum_price?.final_price?.value}
+            regularPrice={product?.price_range?.minimum_price?.regular_price?.value}
             currency={product?.price_range?.minimum_price?.regular_price?.currency}
         />
           ))}
         </div>
+        {totalPages > 1 && (
+          <nav aria-label="Product pages" className="flex items-center justify-center gap-6 mt-10">
+            <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="border border-line rounded-md px-4 py-2 disabled:opacity-30">Previous</button>
+            <span>Page {page} of {totalPages}</span>
+            <button disabled={page >= totalPages} onClick={() => setPage(page + 1)} className="border border-line rounded-md px-4 py-2 disabled:opacity-30">Next</button>
+          </nav>
+        )}
       </section>
     </>
   );

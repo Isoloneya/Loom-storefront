@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCategories } from "@/hooks/useCategories";
 import { useNewArrivals } from "@/hooks/useNewArrivals";
 import { CategoryList } from "@/components/catalog/CategoryList";
@@ -9,7 +10,7 @@ import { Hero } from "@/components/Hero";
 
 export default function Home() {
   const { categories, loading, error } = useCategories();
-  const { products, loading: productsLoading } = useNewArrivals();
+  const { products, loading: productsLoading, error: productsError } = useNewArrivals();
 
   if (loading) return <p className="p-8">Loading categories...</p>;
   if (error) return <p className="p-8">Error: {error.message}</p>;
@@ -30,9 +31,9 @@ export default function Home() {
             </span>
             <h2 className="text-2xl md:text-[28px]">Shop by category</h2>
           </div>
-          <a href="#" className="text-muted text-sm">
+          <Link href="/category/what-is-new" className="text-muted text-sm">
             View all →
-          </a>
+          </Link>
         </div>
 
         <CategoryList categories={categories} />
@@ -46,12 +47,14 @@ export default function Home() {
             </span>
             <h2 className="text-2xl md:text-[28px]">New arrivals</h2>
           </div>
-          <a href="#" className="text-muted text-sm">
+          <Link href="/category/what-is-new" className="text-muted text-sm">
             View all →
-          </a>
+          </Link>
         </div>
 
-        {productsLoading ? (
+        {productsError ? (
+          <p role="alert" className="text-muted">Unable to load new arrivals. Please try again.</p>
+        ) : productsLoading ? (
           <p className="text-muted">Loading products...</p>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
@@ -61,7 +64,8 @@ export default function Home() {
               name={product?.name}
               urlKey={product?.url_key}
               imageUrl={product?.small_image?.url}
-              price={product?.price_range?.minimum_price?.regular_price?.value}
+              price={product?.price_range?.minimum_price?.final_price?.value}
+              regularPrice={product?.price_range?.minimum_price?.regular_price?.value}
               currency={product?.price_range?.minimum_price?.regular_price?.currency}
             />
             ))}

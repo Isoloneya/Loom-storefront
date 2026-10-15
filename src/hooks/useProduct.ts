@@ -17,6 +17,7 @@ const GET_PRODUCT = graphql(`
         }
         price_range {
           minimum_price {
+            final_price { value currency }
             regular_price {
               value
               currency

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type HeroProps = {
   gearCount: number;
   categoryCount: number;
@@ -37,9 +39,9 @@ export function Hero({ gearCount, categoryCount }: HeroProps) {
           pieces that hold up to the sessions that actually matter.
         </p>
 
-        <button className="bg-accent text-cream rounded-md px-8 py-4 text-sm font-semibold">
+        <Link href="/category/what-is-new" className="inline-block bg-accent text-cream rounded-md px-8 py-4 text-sm font-semibold">
           Shop New Arrivals
-        </button>
+        </Link>
       </div>
 
       <div className="relative z-10 md:absolute md:right-16 md:bottom-24 flex gap-11 mt-10 md:mt-0">

@@ -19,7 +19,8 @@ export default function ProductPage({ params }: ProductPageProps) {
   if (error) return <p className="p-8">Error: {error.message}</p>;
   if (!product) return <p className="p-8">Product not found.</p>;
 
-  const price = product.price_range?.minimum_price?.regular_price?.value;
+  const price = product.price_range?.minimum_price?.final_price?.value;
+  const regularPrice = product.price_range?.minimum_price?.regular_price?.value;
   const currency = product.price_range?.minimum_price?.regular_price?.currency;
   const image = product.media_gallery?.[0]?.url;
 
@@ -43,7 +44,7 @@ export default function ProductPage({ params }: ProductPageProps) {
             <img
               src={image}
               alt={product.name ?? ""}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           ) : (
             "Product image"
@@ -61,6 +62,7 @@ export default function ProductPage({ params }: ProductPageProps) {
 
           <div className="text-2xl text-muted mb-8">
             {currency} {price?.toFixed(2)}
+            {price != null && regularPrice != null && price < regularPrice && <del className="ml-3 text-base">{currency} {regularPrice.toFixed(2)}</del>}
           </div>
 
           {product.short_description?.html && (

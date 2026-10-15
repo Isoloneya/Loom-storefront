@@ -3,20 +3,18 @@ import { graphql } from "@/gql";
 
 const GET_NEW_ARRIVALS = graphql(`
   query GetNewArrivals {
-    products(search: "", pageSize: 4, sort: { position: DESC }) {
-      items {
-        id
-        sku
-        name
-        url_key
-        small_image {
-          url
-        }
-        price_range {
-          minimum_price {
-            regular_price {
-              value
-              currency
+    categoryList(filters: { url_key: { eq: "what-is-new" } }) {
+      products(pageSize: 12, sort: { created_at: DESC }) {
+        items {
+          id
+          sku
+          name
+          url_key
+          small_image { url }
+          price_range {
+            minimum_price {
+              regular_price { value currency }
+              final_price { value currency }
             }
           }
         }
@@ -26,11 +24,8 @@ const GET_NEW_ARRIVALS = graphql(`
 `);
 
 export function useNewArrivals() {
-  const { data, loading, error } = useQuery(GET_NEW_ARRIVALS);
-
-  return {
-    products: data?.products?.items ?? [],
-    loading,
-    error,
-  };
+  const { data, loading, error } = useQuery(GET_NEW_ARRIVALS, {
+    fetchPolicy: "cache-and-network",
+  });
+  return { products: data?.categoryList?.[0]?.products?.items ?? [], loading, error };
 }

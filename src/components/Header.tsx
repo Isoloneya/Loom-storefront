@@ -46,7 +46,12 @@ export function Header() {
 
         {isAuthenticated ? (
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-cream/70">{customer?.firstname}</span>
+            <Link
+              href="/account"
+              className="text-cream/70 hover:text-cold transition"
+            >
+              {customer?.firstname}
+            </Link>
             <button
               onClick={() => void logout()}
               className="text-muted hover:text-accent transition"
